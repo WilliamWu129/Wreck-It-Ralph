@@ -7,10 +7,23 @@ class PlayScene extends Phaser.Scene {
         this.load.spritesheet('felix', 'assets/Felix.png', { frameWidth: 70, frameHeight: 70 });
         this.load.image('background', 'assets/background.png');
         this.load.image('transparent', 'assets/transparent.png');
+
+        this.load.spritesheet('ralph', 'assets/Ralph.png', {
+            frameWidth: 300,  
+            frameHeight: 300
+        });
+        
+        
     }
 
     create() {
         this.add.image(300, 300, 'background');
+
+        //ralph
+        this.ralph = new Ralph(this, 300, 100);
+        this.add.existing(this.ralph);
+        this.physics.add.existing(this.ralph);
+
 
         this.platforms = this.physics.add.staticGroup();
 
@@ -72,15 +85,19 @@ class PlayScene extends Phaser.Scene {
         ];
         
         for (let platform of platforms) {
-            this.platforms.create(platform.x, platform.y, 'transparent').setScale(10, 1).refreshBody();
+            let p = this.platforms.create(platform.x, platform.y, 'transparent').setScale(10, 1).refreshBody();
+        
+            // Make platform one-way
+            p.body.checkCollision.down = false;
+            p.body.checkCollision.left = false;
+            p.body.checkCollision.right = false; 
         }
+        
         
 
         this.ladders = this.physics.add.staticGroup();
 
-        // Add invisible ladder zones (adjust X/Y/height to match ladder positions in background.png)
-        this.ladders.create(55, 480, 'transparent').setScale(1, 3).refreshBody();
-        this.ladders.create(665, 380, 'transparent').setScale(1, 3).refreshBody();
+    
 
         this.felix = new Felix(this, 650, 500);
         this.physics.add.existing(this.felix);
@@ -91,6 +108,13 @@ class PlayScene extends Phaser.Scene {
 
     update() {
         this.felix.update();
+
+        if (!this.physics.overlap(this.felix, this.ladders) && this.felix.isClimbing) {
+            this.felix.stopClimbing();
+        }
+
+        this.ralph.update();
+        
     }
 
     handleLadder(felix, ladder) {

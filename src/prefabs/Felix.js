@@ -31,14 +31,21 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
             return;  // Lock during hammer animation
         }
 
-        if (this.isClimbing) {
-            this.handleClimbing();
-            return;
-        }
+        // if (this.isClimbing) {
+        //     this.handleClimbing();
+        //     return;
+        // }
 
         this.handleMovement();
         this.handleJumping();
         this.handleHammering();
+
+        if (this.cursors.down.isDown && this.body.blocked.down) {
+            this.body.checkCollision.up = false;
+            this.setVelocityY(100);
+        } else {
+            this.body.checkCollision.up = true;
+        }
     }
 
     handleMovement() {
@@ -64,6 +71,13 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
             this.anims.play('jump', true);
         }
 
+        if (this.cursors.down.isDown && this.body.blocked.down) {
+            this.body.checkCollision.up = false;   // Temporarily disable "standing" collision
+            this.setVelocityY(100);                 // Nudge player down
+        } else {
+            this.body.checkCollision.up = true;    // Re-enable standing on platform
+        }
+
         if (this.body.blocked.down) {
             this.isJumping = false;
         }
@@ -80,29 +94,29 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    handleClimbing() {
-        this.setVelocityX(0);
+    // handleClimbing() {
+    //     this.setVelocityX(0);
 
-        if (this.cursors.up.isDown) {
-            this.setVelocityY(-this.climbSpeed);
-            this.anims.play('walk', true);  // Reuse walk animation for climbing
-        } else if (this.cursors.down.isDown) {
-            this.setVelocityY(this.climbSpeed);
-            this.anims.play('walk', true);
-        } else {
-            this.setVelocityY(0);
-            this.anims.play('idle', true);
-        }
-    }
+    //     if (this.cursors.up.isDown) {
+    //         this.setVelocityY(-this.climbSpeed);
+    //         this.anims.play('walk', true);  // Reuse walk animation for climbing
+    //     } else if (this.cursors.down.isDown) {
+    //         this.setVelocityY(this.climbSpeed);
+    //         this.anims.play('walk', true);
+    //     } else {
+    //         this.setVelocityY(0);
+    //         this.anims.play('idle', true);
+    //     }
+    // }
 
-    startClimbing() {
-        this.isClimbing = true;
-        this.body.allowGravity = false;
-        this.setVelocityX(0);
-    }
+    // startClimbing() {
+    //     this.isClimbing = true;
+    //     this.body.allowGravity = false;
+    //     this.setVelocityX(0);
+    // }
 
-    stopClimbing() {
-        this.isClimbing = false;
-        this.body.allowGravity = true;
-    }
+    // stopClimbing() {
+    //     this.isClimbing = false;
+    //     this.body.allowGravity = true;
+    // }
 }
