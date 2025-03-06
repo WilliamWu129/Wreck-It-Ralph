@@ -10,8 +10,6 @@ class Ralph extends Phaser.Physics.Arcade.Sprite {
         this.setScale(0.5);
         this.body.setSize(this.width * 0.5, this.height * 0.5);
 
-        //this.body.setOffset(10, 20)
-
 
 
         this.setVelocityX(50);
@@ -46,27 +44,57 @@ class Ralph extends Phaser.Physics.Arcade.Sprite {
     }
 
     update(time, delta) {
-        if (this.x <= 100) {
+        if (this.x <= 170) {
             this.setVelocityX(50);
             this.setFlipX(false);
-        } else if (this.x >= 500) {
+        } else if (this.x >= 420) {
             this.setVelocityX(-50);
             this.setFlipX(true);
         }
 
-        if (time > this.lastAttackTime + this.timeToAttack) {
+        if (time > this.lastAttackTime + this.timeToAttack && !this.isAttacking) {
             this.startAttack();
-            this.lastAttackTime = time;
         }
     }
 
     startAttack() {
+        this.isAttacking = true;  
+        
+        this.previousVelocityX = this.body.velocity.x; //store his x velocity
+        this.setVelocityX(0);
+        
         this.play('ralph-windup');
+    
         this.scene.time.delayedCall(500, () => {
             this.play('ralph-attack');
+            
             this.scene.time.delayedCall(500, () => {
+                this.spawnBricks();
                 this.play('ralph-walk');
+                this.setVelocityX(this.previousVelocityX);
+    
+                // Reset the attack timer only after the attack fully completes
+                this.lastAttackTime = this.scene.time.now;
+                this.isAttacking = false;  // Allows a new attack to start after this one finishes
             });
         });
     }
+
+    spawnBricks() {
+
+        
+        for (let i = 0; i < 1; i++) {//can change later the amount of bricks spawning
+            const offsetX = Phaser.Math.Between(-50, 50);  // Slight random x offset
+            const brick = this.scene.physics.add.sprite(this.x + offsetX, this.y + 50, 'brick');
+    
+            brick.setVelocityY(200);  // Falls down at a constant speed
+    
+    
+            this.scene.physics.add.overlap(brick, this.scene.felix, () => {
+                this.scene.felix.takeDamage();
+                brick.destroy();
+            });
+        }
+    }
+    
 }

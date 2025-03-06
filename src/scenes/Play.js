@@ -5,8 +5,17 @@ class PlayScene extends Phaser.Scene {
 
     preload() {
         this.load.spritesheet('felix', 'assets/Felix.png', { frameWidth: 70, frameHeight: 70 });
+        
         this.load.image('background', 'assets/background.png');
         this.load.image('transparent', 'assets/transparent.png');
+        this.load.image('life', 'assets/lives.png');
+
+        
+        this.load.spritesheet('brick', 'assets/brick.png',{
+            frameWidth: 130,
+            frameHeight: 100
+        });
+
 
         this.load.spritesheet('ralph', 'assets/Ralph.png', {
             frameWidth: 300,  
@@ -19,8 +28,22 @@ class PlayScene extends Phaser.Scene {
     create() {
         this.add.image(300, 300, 'background');
 
+        
+        this.livesRemaining = 3;  
+
+        this.livesGroup = this.add.group();
+
+        //  initial lives in the top right corner
+        for (let i = 0; i < this.livesRemaining; i++) {
+            const life = this.add.image(500 + i * 30, 30, 'life');  
+            life.setScale(0.5);  
+            this.livesGroup.add(life);
+        }
+
+
+
         //ralph
-        this.ralph = new Ralph(this, 300, 100);
+        this.ralph = new Ralph(this, 300, 130);
         this.add.existing(this.ralph);
         this.physics.add.existing(this.ralph);
 
@@ -106,32 +129,56 @@ class PlayScene extends Phaser.Scene {
         this.physics.add.overlap(this.felix, this.ladders, this.handleLadder, null, this);
     }
 
-    update() {
+    update(time, delta) {
         this.felix.update();
 
         if (!this.physics.overlap(this.felix, this.ladders) && this.felix.isClimbing) {
             this.felix.stopClimbing();
         }
 
-        this.ralph.update();
+        this.ralph.update(time, delta);
         
     }
 
-    handleLadder(felix, ladder) {
-        if (this.input.keyboard.createCursorKeys().up.isDown) {
-            felix.setVelocityY(-100);
-            felix.body.allowGravity = false;
-        } else if (this.input.keyboard.createCursorKeys().down.isDown) {
-            felix.setVelocityY(100);
-            felix.body.allowGravity = false;
-        } else {
-            felix.setVelocityY(0);
+    loseLife() {
+        this.livesRemaining--;
+    
+        // Remove one life icon from the group
+        if (this.livesGroup.getChildren().length > 0) {
+            const life = this.livesGroup.getChildren()[this.livesGroup.getChildren().length - 1];
+            life.destroy();
         }
-
-        this.physics.world.on('worldstep', () => {
-            if (!felix.body.embedded && !felix.body.touching.none) {
-                felix.body.allowGravity = true;
-            }
-        });
+    
+        // Check for Game Over
+        if (this.livesRemaining <= 0) {
+            this.gameOver();
+        }
     }
+    
+    gameOver() {
+        console.log("Game Over!");
+        this.scene.start("menuScene");  
+    }
+
+
+
+
+
+    // handleLadder(felix, ladder) {
+    //     if (this.input.keyboard.createCursorKeys().up.isDown) {
+    //         felix.setVelocityY(-100);
+    //         felix.body.allowGravity = false;
+    //     } else if (this.input.keyboard.createCursorKeys().down.isDown) {
+    //         felix.setVelocityY(100);
+    //         felix.body.allowGravity = false;
+    //     } else {
+    //         felix.setVelocityY(0);
+    //     }
+
+    //     this.physics.world.on('worldstep', () => {
+    //         if (!felix.body.embedded && !felix.body.touching.none) {
+    //             felix.body.allowGravity = true;
+    //         }
+    //     });
+    // }
 }

@@ -94,6 +94,14 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    takeDamage() {
+        console.log("Felix took damage!");
+    
+        // Tell the scene to remove a life
+        this.scene.loseLife();
+    }
+
+
     // handleClimbing() {
     //     this.setVelocityX(0);
 
