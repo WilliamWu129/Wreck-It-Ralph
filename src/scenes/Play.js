@@ -10,6 +10,13 @@ class PlayScene extends Phaser.Scene {
         this.load.image('transparent', 'assets/transparent.png');
         this.load.image('life', 'assets/lives.png');
 
+
+
+        this.load.spritesheet('brokenWin', 'assets/brokenWin.png',{
+            frameWidth: 200,
+            frameHeight: 200
+        });
+
         
         this.load.spritesheet('brick', 'assets/brick.png',{
             frameWidth: 130,
@@ -75,6 +82,26 @@ class PlayScene extends Phaser.Scene {
             frames: [{ key: 'felix', frame: 4 }],
             frameRate: 10
         });
+
+
+        //broken windows
+        this.brokenWindows = this.physics.add.staticGroup();
+
+        const windowPositions = [
+            { x: 162, y: 415 },
+            { x: 232, y: 315 },
+            { x: 298, y: 233 },
+            { x: 365, y: 315 },
+            { x: 432, y: 412 }
+        ];
+
+        for (let pos of windowPositions) {
+            const frame = Phaser.Math.Between(0, 3);  // Random broken window type
+            const brokenWindow = this.brokenWindows.create(pos.x, pos.y, 'brokenWin', frame);
+            brokenWindow.setScale(0.5);  // Scale to match background if needed
+            brokenWindow.body.setSize(50, 50); 
+            brokenWindow.body.setOffset(71, 71);
+        }
         
 
 

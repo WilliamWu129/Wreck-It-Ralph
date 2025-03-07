@@ -88,6 +88,16 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
             this.isHammering = true;
             this.anims.play('hammer', true);
 
+            const overlappingWindows = this.scene.physics.overlap(this, this.scene.brokenWindows, (felix, window) => {
+                window.destroy();  // Window is fixed!
+                console.log('Window fixed!');
+            });
+    
+            if (!overlappingWindows) {
+                console.log('No window to fix');
+            }
+    
+
             this.scene.time.delayedCall(400, () => {
                 this.isHammering = false;
             });
