@@ -29,12 +29,19 @@ class PlayScene extends Phaser.Scene {
             frameHeight: 300
         });
         
+        this.load.audio('hurt', 'assets/hurt.wav');
+        this.load.audio('jump', 'assets/jump.wav');
+        this.load.audio('fixWin', 'assets/fixWin.wav');
         
     }
 
     create() {
         this.add.image(300, 300, 'background');
 
+        //audio
+        this.hurtSound = this.sound.add('hurt');
+        this.jumpSound = this.sound.add('jump');
+        this.fixWinSound = this.sound.add('fixWin');
         
         this.livesRemaining = 3;  
 

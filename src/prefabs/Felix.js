@@ -69,6 +69,7 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
             this.setVelocityY(-600);
             this.isJumping = true;
             this.anims.play('jump', true);
+            this.scene.jumpSound.play();
         }
 
         if (this.cursors.down.isDown && this.body.blocked.down) {
@@ -90,6 +91,7 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
 
             const overlappingWindows = this.scene.physics.overlap(this, this.scene.brokenWindows, (felix, window) => {
                 window.destroy();  // Window is fixed!
+                this.scene.fixWinSound.play();
                 console.log('Window fixed!');
             });
     
@@ -106,7 +108,7 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
 
     takeDamage() {
         console.log("Felix took damage!");
-    
+        this.scene.hurtSound.play();
         // Tell the scene to remove a life
         this.scene.loseLife();
     }
