@@ -46,6 +46,13 @@ class Menu extends Phaser.Scene {
             fontFamily: 'Arial',
             fontStyle: 'bold'
         }).setOrigin(0.2);
+        
+        this.add.text(200, 450, 'to return to menu click M', {
+            fontSize: '24px',
+            fill: '#fff',
+            fontFamily: 'Arial',
+            fontStyle: 'bold'
+        }).setOrigin(0.2);
 
     }
 

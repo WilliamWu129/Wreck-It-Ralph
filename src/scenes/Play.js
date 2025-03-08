@@ -161,6 +161,8 @@ class PlayScene extends Phaser.Scene {
 
         this.physics.add.collider(this.felix, this.platforms);
         this.physics.add.overlap(this.felix, this.ladders, this.handleLadder, null, this);
+        this.menuKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M);
+
     }
 
     update(time, delta) {
@@ -171,7 +173,10 @@ class PlayScene extends Phaser.Scene {
         }
 
         this.ralph.update(time, delta);
-        
+        if (Phaser.Input.Keyboard.JustDown(this.menuKey)) {
+            console.log("Returning to Menu...");
+            this.scene.start("Menu");  
+        }
     }
 
     loseLife() {
