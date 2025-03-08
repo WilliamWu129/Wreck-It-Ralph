@@ -27,7 +27,7 @@ class Menu extends Phaser.Scene {
 
         // Add event listener for play button
         playButton.on('pointerdown', () => {
-            this.scene.start('PlayScene'); // Change to your main game scene
+            this.scene.start('PlayScene'); 
         });
 
         // Hover effect
