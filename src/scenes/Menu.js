@@ -39,6 +39,14 @@ class Menu extends Phaser.Scene {
             playButton.setStyle({ fill: '#fff' }); // Revert text color
         });
 
+
+        this.add.text(130, 400, 'arrow keys to move, Jump is Space, F is hammer', {
+            fontSize: '24px',
+            fill: '#fff',
+            fontFamily: 'Arial',
+            fontStyle: 'bold'
+        }).setOrigin(0.2);
+
     }
 
     update(){
