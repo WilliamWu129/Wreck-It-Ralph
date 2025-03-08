@@ -8,7 +8,7 @@ let config = {
             debug: true
         }
     },
-    scene: [menuScene, PlayScene]
+    scene: [Menu, PlayScene]
 }
 
 
