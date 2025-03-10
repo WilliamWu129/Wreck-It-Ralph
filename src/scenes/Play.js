@@ -19,8 +19,8 @@ class PlayScene extends Phaser.Scene {
 
         
         this.load.spritesheet('brick', 'assets/brick.png',{
-            frameWidth: 130,
-            frameHeight: 100
+            frameWidth: 60,
+            frameHeight: 60
         });
 
 
@@ -94,21 +94,54 @@ class PlayScene extends Phaser.Scene {
         //broken windows
         this.brokenWindows = this.physics.add.staticGroup();
 
-        const windowPositions = [
-            { x: 162, y: 415 },
+        const allWindowPositions  = [
+            { x: 165, y: 495 }, 
+            { x: 165, y: 415 },
+            { x: 165, y: 317 }, 
+            { x: 165, y: 237 }, 
+
+            
+            { x: 232, y: 235 },
             { x: 232, y: 315 },
-            { x: 298, y: 233 },
+            { x: 232, y: 413 },
+            { x: 232, y: 495 },
+
+            
+            { x: 298, y: 231 },
+            { x: 298, y: 315 }, 
+
+
+            { x: 360, y: 493 },
+            { x: 362, y: 413 },
+            { x: 365, y: 235 },
             { x: 365, y: 315 },
-            { x: 432, y: 412 }
+
+
+
+            { x: 430, y: 493 },
+            { x: 430, y: 412 },
+            { x: 430, y: 315 },
+            { x: 430, y: 235 },
+
+
         ];
 
-        for (let pos of windowPositions) {
-            const frame = Phaser.Math.Between(0, 3);  // Random broken window type
+        Phaser.Utils.Array.Shuffle(allWindowPositions);
+        const selectedPositions = allWindowPositions.slice(0, 9);
+
+
+        for (let pos of selectedPositions) {
+            const frame = Phaser.Math.Between(0, 3);  // Choose a random broken window style
             const brokenWindow = this.brokenWindows.create(pos.x, pos.y, 'brokenWin', frame);
-            brokenWindow.setScale(0.5);  // Scale to match background if needed
+            brokenWindow.setScale(0.5);
             brokenWindow.body.setSize(50, 50); 
             brokenWindow.body.setOffset(71, 71);
         }
+
+        this.windowsRemaining = selectedPositions.length;
+        console.log(`Spawned ${this.windowsRemaining} broken windows.`);
+
+
         
 
 
@@ -196,7 +229,7 @@ class PlayScene extends Phaser.Scene {
     
     gameOver() {
         console.log("Game Over!");
-        this.scene.start("menuScene");  
+        this.scene.start("Menu");  
     }
 
 

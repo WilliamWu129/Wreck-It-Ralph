@@ -93,6 +93,17 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
                 window.destroy();  // Window is fixed!
                 this.scene.fixWinSound.play();
                 console.log('Window fixed!');
+                this.scene.windowsRemaining--;
+
+
+                if (this.scene.windowsRemaining === 0) {
+                    console.log("All windows fixed! Stage Cleared!");
+                    this.scene.time.delayedCall(1000, () => {  // Small delay before switching scenes
+                        this.scene.scene.start("StageCleared");
+                    });
+                }
+    
+
             });
     
             if (!overlappingWindows) {
@@ -100,7 +111,7 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
             }
     
 
-            this.scene.time.delayedCall(400, () => {
+            this.scene.time.delayedCall(200, () => {
                 this.isHammering = false;
             });
         }
