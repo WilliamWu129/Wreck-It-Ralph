@@ -18,4 +18,4 @@ let borderPadding = borderUISize / 3
 
 
 
-//work on ladders next and then after fix platforms so that you can go through them?
+// cake need to be invincible still, and have player animations move properly

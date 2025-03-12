@@ -9,6 +9,7 @@ class PlayScene extends Phaser.Scene {
         this.load.image('background', 'assets/background.png');
         this.load.image('transparent', 'assets/transparent.png');
         this.load.image('life', 'assets/lives.png');
+        this.load.image('cake', 'assets/cake.png');  
 
 
 
@@ -90,6 +91,18 @@ class PlayScene extends Phaser.Scene {
             frameRate: 10
         });
 
+        this.anims.create({
+            key: 'felix-powerup',
+            frames: this.anims.generateFrameNumbers('felix', { start: 8, end: 10 }),
+            frameRate: 10,
+            repeat: -1  // Loop the animation while powered up
+        });
+
+        this.anims.create({
+            key: 'eat',
+            frames: this.anims.generateFrameNumbers('felix', { start: 11, end: 12 }),
+            frameRate: 10,
+        });
 
         //broken windows
         this.brokenWindows = this.physics.add.staticGroup();
@@ -183,6 +196,9 @@ class PlayScene extends Phaser.Scene {
             p.body.checkCollision.right = false; 
         }
         
+        this.cake = null;  //cake one exists at a time
+        this.startCakeSpawnTimer();
+
         
 
         this.ladders = this.physics.add.staticGroup();
@@ -226,6 +242,84 @@ class PlayScene extends Phaser.Scene {
             this.gameOver();
         }
     }
+
+
+    startCakeSpawnTimer() {
+        this.time.addEvent({
+            delay: 3000,  //Spawns every 10 seconds
+            callback: this.spawnCake,
+            callbackScope: this,
+            loop: true
+        });
+    }
+
+    spawnCake() {
+        if (this.cake) return;  //Do nothing if a cake already exists
+    
+        const randomPlatform = Phaser.Utils.Array.GetRandom(this.platforms.getChildren());
+        const { x, y } = randomPlatform;
+    
+        this.cake = new Cake(this, x, y - 10);  // Spawn cake slightly above the platform
+    }
+
+    collectCake() {
+        console.log("Cake collected!");
+        this.cake = null;  // Remove the cake
+
+        this.felix.setVelocity(0, 0);
+        this.felix.body.allowGravity = false; 
+
+        this.felix.anims.play('eat', true);
+
+        this.time.delayedCall(1000, () => {
+            this.startPowerUp();
+        });
+    }
+
+    startPowerUp() {
+        console.log("Power-Up Activated!");
+        
+ 
+        this.felix.isPoweredUp = true;
+        this.felix.anims.play('felix-powerup', true);
+    
+        //doesnt work at the moment////////////////////////////////////
+        this.physics.world.removeCollider(this.brickCollision);
+    
+        //  Disable Top Collision on Platforms
+        this.platforms.getChildren().forEach((platform) => {
+            platform.body.checkCollision.up = false;
+        });
+    
+        this.felix.powerUpControls = this.input.keyboard.createCursorKeys();
+    
+        //  Set Timer 5 Seconds
+        this.time.delayedCall(5000, () => {
+            this.endPowerUp();
+        });
+    }
+
+    
+    endPowerUp() {
+        console.log("Power-up ended!");
+        this.felix.body.allowGravity = true;  //  Re-enable gravity
+        this.felix.isPoweredUp = false;  //  Reset power-up state
+        this.felix.setVelocity(0, 0);  // Stop movement
+    
+        // Restore normal Felix animation
+        this.felix.anims.play('idle', true);
+
+        this.platforms.getChildren().forEach((platform) => {
+            platform.body.checkCollision.up = true;
+        });
+    
+        //  Re-enable brick collisions
+        this.brickCollision = this.physics.add.collider(this.felix, this.bricks, () => {
+            this.felix.takeDamage();
+        });
+    }
+    
+    
     
     gameOver() {
         console.log("Game Over!");
@@ -234,23 +328,4 @@ class PlayScene extends Phaser.Scene {
 
 
 
-
-
-    // handleLadder(felix, ladder) {
-    //     if (this.input.keyboard.createCursorKeys().up.isDown) {
-    //         felix.setVelocityY(-100);
-    //         felix.body.allowGravity = false;
-    //     } else if (this.input.keyboard.createCursorKeys().down.isDown) {
-    //         felix.setVelocityY(100);
-    //         felix.body.allowGravity = false;
-    //     } else {
-    //         felix.setVelocityY(0);
-    //     }
-
-    //     this.physics.world.on('worldstep', () => {
-    //         if (!felix.body.embedded && !felix.body.touching.none) {
-    //             felix.body.allowGravity = true;
-    //         }
-    //     });
-    // }
 }

@@ -59,36 +59,55 @@ class Ralph extends Phaser.Physics.Arcade.Sprite {
 
     startAttack() {
         this.isAttacking = true;  
-        
-        this.previousVelocityX = this.body.velocity.x; //store his x velocity
+        this.previousVelocityX = this.body.velocity.x;  // Store his movement speed
         this.setVelocityX(0);
-        
+    
         this.play('ralph-windup');
     
         this.scene.time.delayedCall(500, () => {
-            this.play('ralph-attack');
-            
-            this.scene.time.delayedCall(500, () => {
-                this.spawnBricks();
-                this.play('ralph-walk');
-                this.setVelocityX(this.previousVelocityX);
+            let attackCount = 0;  // Counter for repeated attacks
     
-                // Reset the attack timer only after the attack fully completes
-                this.lastAttackTime = this.scene.time.now;
-                this.isAttacking = false;  // Allows a new attack to start after this one finishes
-            });
+            const repeatAttack = () => {
+                if (attackCount < 4) {  // Change this number for more/less attacks
+                    this.play('ralph-attack');
+                    attackCount++;
+    
+                    //  Start spawning bricks **only during the first attack**
+                    if (attackCount === 1) {
+                        this.scene.time.delayedCall(300, () => {
+                            this.spawnBricks();
+                        });
+                    }
+    
+                    //  Wait for the attack animation to finish, then repeat
+                    this.scene.time.delayedCall(500, repeatAttack);
+                } else {
+                    //  After 4 attacks, resume walking
+                    this.play('ralph-walk');
+                    this.setVelocityX(this.previousVelocityX);
+                    this.lastAttackTime = this.scene.time.now;
+                    this.isAttacking = false;
+                }
+            };
+    
+            repeatAttack();  // Start attack loop
         });
     }
+    
 
     spawnBricks() {
-        for (let i = 0; i < 3; i++) {  // spawns 3 bricks with slight delays
+        for (let i = 0; i < 5; i++) {  // spawns 3 bricks with slight delays
             this.scene.time.delayedCall(i * 300, () => { 
-                const offsetX = Phaser.Math.Between(-60, 60);  // Random horizontal offset
+                const offsetX = Phaser.Math.Between(-100, 100);  // Random horizontal offset
                 const frame = Phaser.Math.Between(0, 2);  // Random brick frame
     
                 const brick = this.scene.physics.add.sprite(this.x + offsetX, this.y + 50, 'brick');
                 brick.setVelocityY(200);  
                 brick.setFrame(frame);  
+
+
+                brick.body.setSize(40, 30);  // Change size (width, height)
+
     
                 this.scene.physics.add.overlap(brick, this.scene.felix, () => {
                     this.scene.felix.takeDamage();

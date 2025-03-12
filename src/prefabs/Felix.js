@@ -28,25 +28,43 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
 
     update() {
         if (this.isHammering) {
-            return;  // Lock during hammer animation
+            return;  //  Lock movement during hammer animation
         }
-
-        // if (this.isClimbing) {
-        //     this.handleClimbing();
-        //     return;
-        // }
-
-        this.handleMovement();
-        this.handleJumping();
-        this.handleHammering();
-
-        if (this.cursors.down.isDown && this.body.blocked.down) {
-            this.body.checkCollision.up = false;
-            this.setVelocityY(100);
+    
+        if (this.isPoweredUp) {
+            const speed = 200;  // Adjust flying speed if needed
+    
+            if (this.powerUpControls.left.isDown) {
+                this.setVelocityX(-speed);
+            } else if (this.powerUpControls.right.isDown) {
+                this.setVelocityX(speed);
+            } else {
+                this.setVelocityX(0);
+            }
+    
+            if (this.powerUpControls.up.isDown) {
+                this.setVelocityY(-speed);
+            } else if (this.powerUpControls.down.isDown) {
+                this.setVelocityY(speed);
+            } else {
+                this.setVelocityY(0);
+            }
+            this.handleHammering(true);
         } else {
-            this.body.checkCollision.up = true;
+            this.handleMovement();
+            this.handleJumping();
+            this.handleHammering();
+    
+            //  Drop-through platform logic (only works when NOT powered up)
+            if (this.cursors.down.isDown && this.body.blocked.down) {
+                this.body.checkCollision.up = false;
+                this.setVelocityY(100);
+            } else {
+                this.body.checkCollision.up = true;
+            }
         }
     }
+    
 
     handleMovement() {
         this.setVelocityX(0);
@@ -84,11 +102,12 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    handleHammering() {
-        if (Phaser.Input.Keyboard.JustDown(this.hammerKey)) {
-            this.isHammering = true;
-            this.anims.play('hammer', true);
-
+    handleHammering(autoFix = false) {  // 
+        if (autoFix || Phaser.Input.Keyboard.JustDown(this.hammerKey)) {
+            if (!autoFix) {  // Only play hammer animation if manually hammering
+                this.isHammering = true;
+                this.anims.play('hammer', true);
+            }
             const overlappingWindows = this.scene.physics.overlap(this, this.scene.brokenWindows, (felix, window) => {
                 window.destroy();  // Window is fixed!
                 this.scene.fixWinSound.play();
@@ -106,14 +125,17 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
 
             });
     
-            if (!overlappingWindows) {
+            if (!overlappingWindows && !autoFix) {
                 console.log('No window to fix');
             }
     
 
-            this.scene.time.delayedCall(200, () => {
-                this.isHammering = false;
-            });
+            if (!autoFix) {
+                this.scene.time.delayedCall(200, () => {
+                    this.isHammering = false;
+                });
+            }
+    
         }
     }
 
@@ -125,29 +147,4 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
     }
 
 
-    // handleClimbing() {
-    //     this.setVelocityX(0);
-
-    //     if (this.cursors.up.isDown) {
-    //         this.setVelocityY(-this.climbSpeed);
-    //         this.anims.play('walk', true);  // Reuse walk animation for climbing
-    //     } else if (this.cursors.down.isDown) {
-    //         this.setVelocityY(this.climbSpeed);
-    //         this.anims.play('walk', true);
-    //     } else {
-    //         this.setVelocityY(0);
-    //         this.anims.play('idle', true);
-    //     }
-    // }
-
-    // startClimbing() {
-    //     this.isClimbing = true;
-    //     this.body.allowGravity = false;
-    //     this.setVelocityX(0);
-    // }
-
-    // stopClimbing() {
-    //     this.isClimbing = false;
-    //     this.body.allowGravity = true;
-    // }
 }
