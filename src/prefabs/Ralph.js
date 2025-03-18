@@ -10,8 +10,6 @@ class Ralph extends Phaser.Physics.Arcade.Sprite {
         this.setScale(0.5);
         this.body.setSize(this.width * 0.5, this.height * 0.5);
 
-
-
         this.setVelocityX(50);
 
         this.createAnimations();
@@ -96,7 +94,7 @@ class Ralph extends Phaser.Physics.Arcade.Sprite {
     
 
     spawnBricks() {
-        for (let i = 0; i < 5; i++) {  // spawns 3 bricks with slight delays
+        for (let i = 0; i < 6; i++) {  // spawns 6 bricks with slight delays
             this.scene.time.delayedCall(i * 300, () => { 
                 const offsetX = Phaser.Math.Between(-100, 100);  // Random horizontal offset
                 const frame = Phaser.Math.Between(0, 2);  // Random brick frame
@@ -110,7 +108,9 @@ class Ralph extends Phaser.Physics.Arcade.Sprite {
 
     
                 this.scene.physics.add.overlap(brick, this.scene.felix, () => {
-                    this.scene.felix.takeDamage();
+                    if (!this.scene.felix.isPoweredUp) {  
+                        this.scene.felix.takeDamage();
+                    }
                     brick.destroy();
                 });
     

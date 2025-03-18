@@ -55,7 +55,14 @@ class PlayScene extends Phaser.Scene {
             this.livesGroup.add(life);
         }
 
-
+        //scoring
+        this.score =0;
+        this.scoreText = this.add.text(20, 20, 'Score: 0', {
+            fontSize: '24px',
+            fontFamily: 'Arial',
+            fill: '#ffffff',
+            backgroundColor: '#000000'
+        });
 
         //ralph
         this.ralph = new Ralph(this, 300, 130);
@@ -88,7 +95,7 @@ class PlayScene extends Phaser.Scene {
         this.anims.create({
             key: 'hammer',
             frames: [{ key: 'felix', frame: 4 }],
-            frameRate: 10
+            frameRate: 10,
         });
 
         this.anims.create({
@@ -199,17 +206,10 @@ class PlayScene extends Phaser.Scene {
         this.cake = null;  //cake one exists at a time
         this.startCakeSpawnTimer();
 
-        
-
-        this.ladders = this.physics.add.staticGroup();
-
-    
-
         this.felix = new Felix(this, 650, 500);
         this.physics.add.existing(this.felix);
 
         this.physics.add.collider(this.felix, this.platforms);
-        this.physics.add.overlap(this.felix, this.ladders, this.handleLadder, null, this);
         this.menuKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M);
 
     }
@@ -217,15 +217,16 @@ class PlayScene extends Phaser.Scene {
     update(time, delta) {
         this.felix.update();
 
-        if (!this.physics.overlap(this.felix, this.ladders) && this.felix.isClimbing) {
-            this.felix.stopClimbing();
-        }
 
         this.ralph.update(time, delta);
         if (Phaser.Input.Keyboard.JustDown(this.menuKey)) {
             console.log("Returning to Menu...");
             this.scene.start("Menu");  
         }
+    }
+
+    updateScoreText() {
+        this.scoreText.setText('Score: ' + this.score);
     }
 
     loseLife() {
@@ -246,7 +247,7 @@ class PlayScene extends Phaser.Scene {
 
     startCakeSpawnTimer() {
         this.time.addEvent({
-            delay: 3000,  //Spawns every 10 seconds
+            delay: 10000,  //Spawns every 10 seconds
             callback: this.spawnCake,
             callbackScope: this,
             loop: true
@@ -265,14 +266,17 @@ class PlayScene extends Phaser.Scene {
     collectCake() {
         console.log("Cake collected!");
         this.cake = null;  // Remove the cake
+        
 
         this.felix.setVelocity(0, 0);
-        this.felix.body.allowGravity = false; 
+        this.felix.body.allowGravity = false;
+        this.felix.isEating = true; 
 
         this.felix.anims.play('eat', true);
 
         this.time.delayedCall(1000, () => {
             this.startPowerUp();
+            this.felix.isEating = false; 
         });
     }
 

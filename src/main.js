@@ -2,6 +2,12 @@
 /*
 Wreck it Ralph
 
+Error in pages
+Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+main.js:17 Uncaught ReferenceError: StageCleared is not defined
+    at main.js:17:30
+
+    
 */
 
 let config = {

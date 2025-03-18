@@ -27,6 +27,11 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
+        if (this.isEating) {
+            this.setVelocity(0, 0);  // ✅ Ensure Felix stays still while eating
+            return;  // ✅ Prevents movement input during eating animation
+        }
+        
         if (this.isHammering) {
             return;  //  Lock movement during hammer animation
         }
@@ -113,6 +118,9 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
                 this.scene.fixWinSound.play();
                 console.log('Window fixed!');
                 this.scene.windowsRemaining--;
+
+                this.scene.score+=200;
+                this.scene.updateScoreText();
 
 
                 if (this.scene.windowsRemaining === 0) {
