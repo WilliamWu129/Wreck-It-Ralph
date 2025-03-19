@@ -28,8 +28,8 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
 
     update() {
         if (this.isEating) {
-            this.setVelocity(0, 0);  // ✅ Ensure Felix stays still while eating
-            return;  // ✅ Prevents movement input during eating animation
+            this.setVelocity(0, 0);  // Ensure Felix stays still while eating
+            return;  // Prevents movement input during eating animation
         }
         
         if (this.isHammering) {
@@ -124,8 +124,9 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
 
 
                 if (this.scene.windowsRemaining === 0) {
-                    console.log("All windows fixed! Stage Cleared!");
+                    console.log("Stage Cleared! Moving to next stage...");
                     this.scene.time.delayedCall(1000, () => {  // Small delay before switching scenes
+                        //this.scene.startNextStage();
                         this.scene.scene.start("StageCleared");
                     });
                 }

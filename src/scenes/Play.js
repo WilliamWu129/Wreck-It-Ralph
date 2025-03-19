@@ -36,7 +36,7 @@ class PlayScene extends Phaser.Scene {
         
     }
 
-    create() {
+    create(data) {
         this.add.image(300, 300, 'background');
 
         //audio
@@ -44,7 +44,20 @@ class PlayScene extends Phaser.Scene {
         this.jumpSound = this.sound.add('jump');
         this.fixWinSound = this.sound.add('fixWin');
         
-        this.livesRemaining = 3;  
+        if (data && data.stageNumber) {
+            this.currentStage = data.stageNumber;  // Continue from previous stage
+        } else {
+            this.currentStage = 1;  // Start at stage 1
+        }
+
+        if (!data || !data.stageNumber) {
+            this.livesRemaining = 3;
+            this.score = 0;
+        }
+        if (data?.resetGame) {
+            this.livesRemaining = 3;
+            this.score = 0;  //  Reset only when starting fresh
+        }
 
         this.livesGroup = this.add.group();
 
@@ -55,14 +68,12 @@ class PlayScene extends Phaser.Scene {
             this.livesGroup.add(life);
         }
 
-        //scoring
-        this.score =0;
-        this.scoreText = this.add.text(20, 20, 'Score: 0', {
-            fontSize: '24px',
-            fontFamily: 'Arial',
-            fill: '#ffffff',
-            backgroundColor: '#000000'
-        });
+        this.scoreText = this.add.text(20, 20, `Score: ${this.score}`, {  //  Fix template literal syntax  
+            fontSize: '24px', 
+            fontFamily: 'Arial', 
+            fill: '#ffffff', 
+            backgroundColor: '#000000' 
+        }); 
 
         //ralph
         this.ralph = new Ralph(this, 300, 130);
@@ -114,7 +125,7 @@ class PlayScene extends Phaser.Scene {
         //broken windows
         this.brokenWindows = this.physics.add.staticGroup();
 
-        const allWindowPositions  = [
+        this.allWindowPositions  = [
             { x: 165, y: 495 }, 
             { x: 165, y: 415 },
             { x: 165, y: 317 }, 
@@ -137,7 +148,6 @@ class PlayScene extends Phaser.Scene {
             { x: 365, y: 315 },
 
 
-
             { x: 430, y: 493 },
             { x: 430, y: 412 },
             { x: 430, y: 315 },
@@ -146,23 +156,9 @@ class PlayScene extends Phaser.Scene {
 
         ];
 
-        Phaser.Utils.Array.Shuffle(allWindowPositions);
-        const selectedPositions = allWindowPositions.slice(0, 9);
 
-
-        for (let pos of selectedPositions) {
-            const frame = Phaser.Math.Between(0, 3);  // Choose a random broken window style
-            const brokenWindow = this.brokenWindows.create(pos.x, pos.y, 'brokenWin', frame);
-            brokenWindow.setScale(0.5);
-            brokenWindow.body.setSize(50, 50); 
-            brokenWindow.body.setOffset(71, 71);
-        }
-
-        this.windowsRemaining = selectedPositions.length;
-        console.log(`Spawned ${this.windowsRemaining} broken windows.`);
-
-
-        
+        //call window spawn
+        this.spawnWindows();
 
 
         let platforms = [
@@ -247,7 +243,7 @@ class PlayScene extends Phaser.Scene {
 
     startCakeSpawnTimer() {
         this.time.addEvent({
-            delay: 10000,  //Spawns every 10 seconds
+            delay: 13000,  //Spawns every 13 seconds
             callback: this.spawnCake,
             callbackScope: this,
             loop: true
@@ -287,8 +283,6 @@ class PlayScene extends Phaser.Scene {
         this.felix.isPoweredUp = true;
         this.felix.anims.play('felix-powerup', true);
     
-        //doesnt work at the moment////////////////////////////////////
-        this.physics.world.removeCollider(this.brickCollision);
     
         //  Disable Top Collision on Platforms
         this.platforms.getChildren().forEach((platform) => {
@@ -323,11 +317,53 @@ class PlayScene extends Phaser.Scene {
         });
     }
     
+    spawnWindows() {
+        // Ensure `this.brokenWindows` exists before clearing
+        if (!this.brokenWindows) {
+            this.brokenWindows = this.physics.add.staticGroup();
+        } else {
+            this.brokenWindows.clear(true, true);
+        }
     
+        // Shuffle window positions and pick 9 random ones
+        Phaser.Utils.Array.Shuffle(this.allWindowPositions);
+        const selectedPositions = this.allWindowPositions.slice(0, 9);
+    
+        // Spawn new broken windows
+        for (let pos of selectedPositions) {
+            const frame = Phaser.Math.Between(0, 3);
+            const brokenWindow = this.brokenWindows.create(pos.x, pos.y, 'brokenWin', frame);
+            brokenWindow.setScale(0.5);
+            brokenWindow.body.setSize(50, 50);
+            brokenWindow.body.setOffset(71, 71);
+        }
+    
+        this.windowsRemaining = selectedPositions.length;
+        console.log(`Spawned ${this.windowsRemaining} broken windows.`);
+    }
+    
+    
+    
+    startNextStage() {
+        console.log("Starting Next Stage...");
+    
+        this.currentStage++;
+        this.spawnWindows();  
+    
+        
+        this.felix.setPosition(650, 500); 
+
+        this.ralph.setPosition(300, 130);
+    }
+
+
     
     gameOver() {
         console.log("Game Over!");
-        this.scene.start("Menu");  
+        const finalScore = this.score;  // Store final score before resetting
+    
+        this.scene.start("GameOver", { score: finalScore }); 
+        this.livesRemaining = 3;
     }
 
 
