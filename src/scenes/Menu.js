@@ -5,6 +5,7 @@ class Menu extends Phaser.Scene {
 
     preload(){
         this.load.audio('bgMusic', 'assets/BackgroundMusic.mp3');
+        this.load.image('spark', 'assets/spark.png');//play button animation spark
     }
 
 
@@ -13,6 +14,14 @@ class Menu extends Phaser.Scene {
             this.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.1 });  
             this.bgMusic.play();
         }
+
+        let particles = this.add.particles(0, 0, 'spark', {
+            speed: 20,
+            lifespan: 400,
+            scale: { start: 0.2, end: 0 },
+            quantity: 2,
+            emitting: false
+        });
 
         this.add.text(300, 200, 'Wreck-It Ralph', {
             fontSize: '48px',
@@ -37,28 +46,43 @@ class Menu extends Phaser.Scene {
 
         // Hover effect
         playButton.on('pointerover', () => {
+            particles.setPosition(playButton.x, playButton.y + 10); 
+            particles.start();
             playButton.setStyle({ fill: '#ff0' }); // Change text color on hover
         });
 
         playButton.on('pointerout', () => {
             playButton.setStyle({ fill: '#fff' }); // Revert text color
+            particles.stop();
         });
 
 
-        this.add.text(130, 400, 'arrow keys to move, Jump is Space, F is hammer', {
-            fontSize: '24px',
+        let InstructionsButton = this.add.text(300, 400, 'Instructions', {
+            fontSize: '32px',
             fill: '#fff',
             fontFamily: 'Arial',
-            fontStyle: 'bold'
-        }).setOrigin(0.2);
-        
-        this.add.text(200, 450, 'to return to menu click M', {
-            fontSize: '24px',
-            fill: '#fff',
-            fontFamily: 'Arial',
-            fontStyle: 'bold'
-        }).setOrigin(0.2);
+            backgroundColor: '#000',
+            padding: { left: 20, right: 20, top: 10, bottom: 10 }
+        }).setOrigin(0.5).setInteractive();
 
+        InstructionsButton.on('pointerdown', () => {
+            this.scene.start('Instructions'); 
+        });
+
+        let CreditsButton = this.add.text(300, 500, 'Credits', {
+            fontSize: '32px',
+            fill: '#fff',
+            fontFamily: 'Arial',
+            backgroundColor: '#000',
+            padding: { left: 20, right: 20, top: 10, bottom: 10 }
+        }).setOrigin(0.5).setInteractive();
+
+        CreditsButton.on('pointerdown', () => {
+            this.scene.start('Credits'); 
+        });
+
+
+       
     }
 
     update(){

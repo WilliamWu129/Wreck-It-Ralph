@@ -250,7 +250,7 @@ class PlayScene extends Phaser.Scene {
 
     startCakeSpawnTimer() {
         this.time.addEvent({
-            delay: 13000,  //Spawns every 13 seconds
+            delay: 10000,  //Spawns every 10 seconds
             callback: this.spawnCake,
             callbackScope: this,
             loop: true
