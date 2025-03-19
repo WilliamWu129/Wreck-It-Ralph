@@ -15,6 +15,7 @@ let config = {
             debug: true
         }
     },
+    
     scene: [Menu, PlayScene, StageCleared, GameOver]
 }
 
