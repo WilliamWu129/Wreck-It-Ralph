@@ -33,6 +33,8 @@ class PlayScene extends Phaser.Scene {
         this.load.audio('hurt', 'assets/hurt.wav');
         this.load.audio('jump', 'assets/jump.wav');
         this.load.audio('fixWin', 'assets/fixWin.wav');
+
+        this.load.audio('invincibilityMusic', 'assets/Invincibility.mp3');
         
     }
 
@@ -43,6 +45,11 @@ class PlayScene extends Phaser.Scene {
         this.hurtSound = this.sound.add('hurt');
         this.jumpSound = this.sound.add('jump');
         this.fixWinSound = this.sound.add('fixWin');
+        
+        if (!this.sound.get('bgMusic')) {
+            this.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.5 });
+            this.bgMusic.play();
+        }
         
         if (data && data.stageNumber) {
             this.currentStage = data.stageNumber;  // Continue from previous stage
@@ -278,11 +285,14 @@ class PlayScene extends Phaser.Scene {
 
     startPowerUp() {
         console.log("Power-Up Activated!");
+        if (this.scene.bgMusic && this.scene.bgMusic.isPlaying) {
+            this.scene.bgMusic.pause();
+        }
         
- 
         this.felix.isPoweredUp = true;
         this.felix.anims.play('felix-powerup', true);
-    
+        this.invincibilityMusic = this.sound.add('invincibilityMusic', { volume: 0.1 });
+        this.invincibilityMusic.play();
     
         //  Disable Top Collision on Platforms
         this.platforms.getChildren().forEach((platform) => {
@@ -295,6 +305,10 @@ class PlayScene extends Phaser.Scene {
         this.time.delayedCall(5000, () => {
             this.endPowerUp();
         });
+
+
+
+
     }
 
     
@@ -315,6 +329,11 @@ class PlayScene extends Phaser.Scene {
         this.brickCollision = this.physics.add.collider(this.felix, this.bricks, () => {
             this.felix.takeDamage();
         });
+
+        this.invincibilityMusic.stop();
+        if (this.scene.bgMusic) {
+            this.scene.bgMusic.resume();
+        }
     }
     
     spawnWindows() {

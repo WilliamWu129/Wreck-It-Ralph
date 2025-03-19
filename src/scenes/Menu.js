@@ -4,11 +4,16 @@ class Menu extends Phaser.Scene {
     }
 
     preload(){
-
+        this.load.audio('bgMusic', 'assets/BackgroundMusic.mp3');
     }
 
 
     create(){
+        if (!this.sound.get('bgMusic')) {
+            this.bgMusic = this.sound.add('bgMusic', { loop: true, volume: 0.1 });  
+            this.bgMusic.play();
+        }
+
         this.add.text(300, 200, 'Wreck-It Ralph', {
             fontSize: '48px',
             fill: '#fff',
